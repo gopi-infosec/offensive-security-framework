@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIT - Threat Intelligence Toolkit</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                    <div class="shield-icon">
+                        <div class="shield-outer"></div>
+                        <div class="shield-inner"></div>
+                    </div>
+                </div>
+                <div class="logo-text">
+                    <h1>TIT</h1>
+                    <p>Threat Intel</p>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-view="dashboard">
+                            <span class="nav-icon">🏠</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="scan">
+                            <span class="nav-icon">🔍</span>
+                            <span>Scan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="feeds">
+                            <span class="nav-icon">📡</span>
+                            <span>Threat Feeds</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="history">
+                            <span class="nav-icon">📜</span>
+                            <span>History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="reports">
+                            <span class="nav-icon">📊</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="settings">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="header-title">
+                        <h2 id="pageTitle">Threat Intelligence Dashboard</h2>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn">
+                        <span>🔔</span>
+                        <span class="card-badge danger" id="alertCount">3</span>
+                    </button>
+                    <button class="header-btn">
+                        <span>👤</span>
+                        <span>Admin</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-header">
+                    <h3>🔍 Threat Intelligence Lookup</h3>
+                </div>
+                <form class="search-form" id="scanForm">
+                    <div class="form-group">
+                        <label>Lookup Type</label>
+                        <select class="form-select" id="lookupType">
+                            <option value="ip">IP Address</option>
+                            <option value="domain">Domain</option>
+                            <option value="url">URL</option>
+                            <option value="hash">File Hash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target</label>
+                        <input type="text" class="form-input" id="targetInput" placeholder="Enter IP, domain, URL, or hash..." required>
+                    </div>
+                    <button type="submit" class="scan-btn" id="scanBtn">
+                        <span>Scan Now</span>
+                    </button>
+                </form>
+                <div class="scanning-indicator" id="scanningIndicator">
+                    <div class="radar-pulse"></div>
+                    <span>Scanning across multiple threat intelligence sources...</span>
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+            </section>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Total Scans</div>
+                            <div class="stat-value" id="totalScans">0</div>
+                            <div class="stat-change positive">
+                                <span>↑</span>
+                                <span>12% from last week</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">📊</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Threats Detected</div>
+                            <div class="stat-value" style="color: var(--color-accent-danger)" id="threatsDetected">0</div>
+                            <div class="stat-change negative">
+                                <span>↓</span>
+                                <span>3% from last week</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">⚠️</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Clean Results</div>
+                            <div class="stat-value" style="color: var(--color-accent-primary)" id="cleanResults">0</div>
+                            <div class="stat-change positive">
+                                <span>↑</span>
+                                <span>15% from last week</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Active Feeds</div>
+                            <div class="stat-value" id="activeFeeds">3</div>
+                            <div class="stat-change positive">
+                                <span>↑</span>
+                                <span>Ready</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">📡</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div id="contentArea">
+                <!-- Dashboard View (Default) -->
+                <div id="dashboardView">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">🎯 Recent Threat Activity</h3>
+                                <span class="card-badge danger">Live</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="threatChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">🌍 Threat Origin Map</h3>
+                                <span class="card-badge">Global</span>
+                            </div>
+                            <div class="map-container" id="threatMap">
+                                <div class="map-marker" style="top: 30%; left: 20%;"></div>
+                                <div class="map-marker" style="top: 50%; left: 60%;"></div>
+                                <div class="map-marker" style="top: 70%; left: 80%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">🔒 Top Malicious IPs</h3>
+                                <span class="card-badge danger">High Risk</span>
+                            </div>
+                            <div class="result-grid" id="topMaliciousIPs"></div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">📈 Detection Rate by Source</h3>
+                                <span class="card-badge">Analytics</span>
+                            </div>
+                            <div class="result-grid" id="detectionRates"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan Results View -->
+                <div id="scanResultsView" style="display: none;">
+                    <div class="result-container" id="resultContainer">
+                        <div class="dashboard-card">
+                            <div class="result-header">
+                                <h3 class="result-title">
+                                    <span>🎯</span>
+                                    <span id="resultTarget">Target Analysis</span>
+                                </h3>
+                                <div class="result-meta">
+                                    <span>Type: <strong id="resultType">-</strong></span>
+                                    <span>Scanned: <strong id="resultTime">-</strong></span>
+                                </div>
+                            </div>
+
+                            <div class="result-grid" id="scanResults"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feeds View -->
+                <div id="feedsView" style="display: none;">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">📡 Live Threat Feeds</h3>
+                            <span class="card-badge danger">Active</span>
+                        </div>
+                        <div id="threatFeeds"></div>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div id="historyView" style="display: none;">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">📜 Scan History</h3>
+                            <span class="card-badge">Last 30 Days</span>
+                        </div>
+                        <div class="history-list" id="historyList"></div>
+                    </div>
+                </div>
+
+                <!-- Reports View -->
+                <div id="reportsView" style="display: none;">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 Threat Intelligence Reports</h3>
+                            <button class="header-btn" id="generateReportBtn">+ Generate Report</button>
+                        </div>
+                        <div id="reportsList"></div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="settingsView" style="display: none;">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">⚙️ API Configuration</h3>
+                            <button class="header-btn" id="saveSettingsBtn">💾 Save Settings</button>
+                        </div>
+                        <form id="settingsForm">
+                            <div class="result-grid">
+                                <div class="result-item">
+                                    <div style="width: 100%;">
+                                        <div class="result-label">VirusTotal API Key</div>
+                                        <input type="text" class="form-input" id="vtApiKey" placeholder="Enter VirusTotal API key..." style="margin-top: 8px; width: 100%;">
+                                    </div>
+                                    <span class="card-badge" id="vtStatus">Not Connected</span>
+                                </div>
+                                <div class="result-item">
+                                    <div style="width: 100%;">
+                                        <div class="result-label">AbuseIPDB API Key</div>
+                                        <input type="text" class="form-input" id="abuseApiKey" placeholder="Enter AbuseIPDB API key..." style="margin-top: 8px; width: 100%;">
+                                    </div>
+                                    <span class="card-badge" id="abuseStatus">Not Connected</span>
+                                </div>
+                                <div class="result-item">
+                                    <div style="width: 100%;">
+                                        <div class="result-label">AlienVault OTX API Key</div>
+                                        <input type="text" class="form-input" id="otxApiKey" placeholder="Enter OTX API key..." style="margin-top: 8px; width: 100%;">
+                                    </div>
+                                    <span class="card-badge" id="otxStatus">Not Connected</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

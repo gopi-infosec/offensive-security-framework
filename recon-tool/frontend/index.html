@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 AI-Powered Recon Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-grid"></div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🔴</span>
+                    <span class="logo-text">RECON<span class="logo-highlight">TOOL</span></span>
+                </h1>
+                <p class="tagline">AI-Powered Web & API Reconnaissance</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Scan Panel -->
+            <section class="panel scan-panel">
+                <div class="panel-header">
+                    <h2>🎯 Target Reconnaissance</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="scanForm" class="scan-form">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="domainInput" 
+                                class="input-field" 
+                                placeholder="Enter target domain (e.g., example.com)"
+                                required
+                            >
+                            <button type="submit" class="btn btn-primary" id="scanBtn">
+                                <span class="btn-text">INITIATE SCAN</span>
+                                <span class="btn-icon">🔍</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Progress Indicator -->
+                    <div id="progressContainer" class="progress-container hidden">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p class="progress-text" id="progressText">Initializing scan...</p>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div id="statusContainer" class="status-container hidden">
+                        <div class="status-message" id="statusMessage"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section hidden">
+                <!-- Recon Results -->
+                <div class="panel results-panel">
+                    <div class="panel-header">
+                        <h2>📊 Reconnaissance Results</h2>
+                    </div>
+                    <div class="panel-body">
+                        <!-- Stats Cards -->
+                        <div class="stats-grid" id="statsGrid">
+                            <div class="stat-card">
+                                <div class="stat-icon">🌐</div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="subdomainCount">0</div>
+                                    <div class="stat-label">Subdomains</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="liveHostCount">0</div>
+                                    <div class="stat-label">Live Hosts</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🔓</div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="openPortCount">0</div>
+                                    <div class="stat-label">Open Ports</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🔗</div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="endpointCount">0</div>
+                                    <div class="stat-label">Endpoints</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Results -->
+                        <div class="results-tabs">
+                            <button class="tab-btn active" data-tab="subdomains">Subdomains</button>
+                            <button class="tab-btn" data-tab="hosts">Live Hosts</button>
+                            <button class="tab-btn" data-tab="ports">Open Ports</button>
+                            <button class="tab-btn" data-tab="tech">Technologies</button>
+                            <button class="tab-btn" data-tab="endpoints">Endpoints</button>
+                        </div>
+
+                        <div class="tab-content">
+                            <div id="tab-subdomains" class="tab-panel active">
+                                <div class="terminal-output" id="subdomainsOutput"></div>
+                            </div>
+                            <div id="tab-hosts" class="tab-panel">
+                                <div class="terminal-output" id="hostsOutput"></div>
+                            </div>
+                            <div id="tab-ports" class="tab-panel">
+                                <div class="terminal-output" id="portsOutput"></div>
+                            </div>
+                            <div id="tab-tech" class="tab-panel">
+                                <div class="terminal-output" id="techOutput"></div>
+                            </div>
+                            <div id="tab-endpoints" class="tab-panel">
+                                <div class="terminal-output" id="endpointsOutput"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Analysis -->
+                <div class="panel analysis-panel hidden" id="analysisPanel">
+                    <div class="panel-header">
+                        <h2>🤖 AI Security Analysis</h2>
+                    </div>
+                    <div class="panel-body">
+                        <!-- Risk Level -->
+                        <div class="risk-indicator" id="riskIndicator">
+                            <div class="risk-label">OVERALL RISK LEVEL</div>
+                            <div class="risk-value" id="riskValue">ANALYZING...</div>
+                        </div>
+
+                        <!-- Analysis Content -->
+                        <div class="analysis-section">
+                            <h3>📝 Attack Surface Summary</h3>
+                            <p id="attackSurface" class="analysis-text"></p>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>⚠️ Possible Vulnerabilities</h3>
+                            <ul id="vulnerabilities" class="analysis-list"></ul>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>🎯 Interesting Endpoints</h3>
+                            <ul id="interestingEndpoints" class="analysis-list"></ul>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>🛡️ Security Recommendations</h3>
+                            <ul id="recommendations" class="analysis-list"></ul>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>📋 Detailed Analysis</h3>
+                            <p id="detailedAnalysis" class="analysis-text"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-panel">
+                    <button class="btn btn-secondary" id="analyzeBtn">
+                        <span class="btn-text">ANALYZE WITH AI</span>
+                        <span class="btn-icon">🤖</span>
+                    </button>
+                    <button class="btn btn-success hidden" id="downloadBtn">
+                        <span class="btn-text">DOWNLOAD REPORT</span>
+                        <span class="btn-icon">📄</span>
+                    </button>
+                    <button class="btn btn-tertiary" id="newScanBtn">
+                        <span class="btn-text">NEW SCAN</span>
+                        <span class="btn-icon">🔄</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>⚡ Powered by FastAPI, Perplexity AI & ReportLab | For Educational & Authorized Testing Only</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

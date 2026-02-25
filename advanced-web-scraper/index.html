@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Web Scraper Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">
+                <span class="glow-text">⚡ Advanced Web Scraper Pro</span>
+            </h1>
+            <p class="app-subtitle">Extract, Categorize &amp; Export Web Data with Precision</p>
+        </header>
+
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="welcome-screen">
+            <div class="welcome-content">
+                <div class="welcome-icon">🔍</div>
+                <h2 class="welcome-title">Welcome to Advanced Web Scraper</h2>
+                <p class="welcome-description">Powerful web scraping tool with intelligent categorization and beautiful exports</p>
+                <button class="btn btn-primary" onclick="startApp()">Get Started</button>
+                <div class="demo-notice">
+                    ⚠️ Authorized Mode: Web scraping backend connected. Unauthorized use is strictly prohibited.
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="main-app" style="display: none;">
+            <!-- Input Section -->
+            <section class="section input-section">
+                <div class="card glass-card">
+                    <h2 class="section-title">🎯 Target URLs</h2>
+                    <div class="input-type-toggle">
+                        <button class="toggle-btn active" data-type="single" onclick="toggleInputType('single')">Single URL</button>
+                        <button class="toggle-btn" data-type="bulk" onclick="toggleInputType('bulk')">Bulk URLs</button>
+                    </div>
+                    <div id="single-input" class="input-container">
+                        <input type="text" id="url-input" class="input-field" placeholder="Enter URL (e.g., https://example.com)" />
+                    </div>
+                    <div id="bulk-input" class="input-container" style="display: none;">
+                        <textarea id="bulk-url-input" class="input-field" rows="5" placeholder="Enter multiple URLs (one per line)&#10;https://example.com&#10;https://demo-site.org&#10;https://sample-blog.net"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuration Section -->
+            <section class="section config-section">
+                <div class="card glass-card">
+                    <h2 class="section-title">⚙️ Scraping Configuration</h2>
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label class="config-label">Scraping Depth</label>
+                            <select id="depth-select" class="select-field">
+                                <option value="1">Level 1</option>
+                                <option value="2" selected>Level 2</option>
+                                <option value="3">Level 3</option>
+                                <option value="4">Level 4</option>
+                                <option value="5">Level 5</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label class="config-label">User Agent</label>
+                            <select id="user-agent-select" class="select-field">
+                                <option value="chrome">Chrome (Windows)</option>
+                                <option value="safari">Safari (macOS)</option>
+                                <option value="firefox">Firefox (Linux)</option>
+                            </select>
+                        </div>
+                        <div class="config-item full-width">
+                            <label class="config-label">Request Delay: <span id="delay-value">2</span>s</label>
+                            <input type="range" id="delay-slider" class="slider" min="0" max="5" value="2" step="0.5" />
+                        </div>
+                    </div>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked data-type="text" />
+                            <span>Text Content</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked data-type="images" />
+                            <span>Images</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked data-type="links" />
+                            <span>Links</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked data-type="metadata" />
+                            <span>Metadata</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked data-type="headings" />
+                            <span>Headings</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" data-type="tables" />
+                            <span>Tables</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" data-type="forms" />
+                            <span>Forms</span>
+                        </label>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="start-scraping-btn" onclick="startScraping()">
+                        <span id="btn-text">🚀 Start Scraping</span>
+                        <span id="btn-loader" class="loader" style="display: none;"></span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="section results-section" style="display: none;">
+                <!-- Statistics Panel -->
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-urls">0</div>
+                            <div class="stat-label">URLs Scraped</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-words">0</div>
+                            <div class="stat-label">Words Extracted</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🖼️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-images">0</div>
+                            <div class="stat-label">Images Found</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔗</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-links">0</div>
+                            <div class="stat-label">Links Found</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-bar">
+                    <input type="text" id="search-input" class="input-field search-field" placeholder="🔍 Search results..." onkeyup="filterResults()" />
+                    <select id="sort-select" class="select-field" onchange="sortResults()">
+                        <option value="date">Sort by Date</option>
+                        <option value="url">Sort by URL</option>
+                        <option value="category">Sort by Category</option>
+                        <option value="quality">Sort by Quality</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="showExportModal()">📄 Export to PDF</button>
+                    <button class="btn btn-secondary" onclick="exportJSON()">📋 Export JSON</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()">📊 Export CSV</button>
+                    <button class="btn btn-danger" onclick="clearResults()">🗑️ Clear All</button>
+                </div>
+
+                <!-- Results Container -->
+                <div class="results-container">
+                    <!-- Sidebar Filters -->
+                    <aside class="sidebar">
+                        <h3 class="sidebar-title">📁 Categories</h3>
+                        <div id="category-filters" class="category-filters">
+                            <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">
+                                <span>All Results</span>
+                                <span class="count" id="count-all">0</span>
+                            </button>
+                        </div>
+                        <h3 class="sidebar-title">📈 Quality</h3>
+                        <div class="quality-filters">
+                            <button class="category-btn" data-quality="High" onclick="filterByQuality('High')">
+                                <span>High Quality</span>
+                                <span class="count" id="count-high">0</span>
+                            </button>
+                            <button class="category-btn" data-quality="Medium" onclick="filterByQuality('Medium')">
+                                <span>Medium Quality</span>
+                                <span class="count" id="count-medium">0</span>
+                            </button>
+                            <button class="category-btn" data-quality="Low" onclick="filterByQuality('Low')">
+                                <span>Low Quality</span>
+                                <span class="count" id="count-low">0</span>
+                            </button>
+                        </div>
+                    </aside>
+
+                    <!-- Results Grid -->
+                    <div class="results-grid" id="results-grid">
+                        <!-- Results will be dynamically inserted here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal" style="display: none;">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>📄 Export to PDF</h2>
+                <button class="close-btn" onclick="closeExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="include-stats" checked />
+                        <span>Include Statistics</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="include-images" checked />
+                        <span>Include Images</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="two-columns" />
+                        <span>Two Column Layout</span>
+                    </label>
+                </div>
+                <div class="export-progress" id="export-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Generating PDF... <span id="progress-percent">0%</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal" style="display: none;">
+        <div class="modal-content glass-card large-modal">
+            <div class="modal-header">
+                <h2 id="detail-title">Result Details</h2>
+                <button class="close-btn" onclick="closeDetailModal()">×</button>
+            </div>
+            <div class="modal-body" id="detail-body">
+                <!-- Details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeDetailModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Main App Script -->
+    <script src="app.js"></script>
+</body>
+</html>

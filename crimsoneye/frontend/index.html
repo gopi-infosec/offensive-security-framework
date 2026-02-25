@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrimsonEye - Vulnerability Scanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #ff0033;
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --card-bg: #151520;
+            --border-color: #ff003350;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0033;
+            --glow-red: 0 0 10px rgba(255, 0, 51, 0.5);
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix Background */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--darker-bg);
+            border-right: 2px solid var(--border-color);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary-red);
+            text-align: center;
+            margin-bottom: 3rem;
+            text-shadow: var(--glow-red);
+            letter-spacing: 2px;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            margin: 0.5rem 1rem;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--card-bg);
+            border-left-color: var(--primary-red);
+            box-shadow: var(--glow-red);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--primary-red);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: var(--card-bg);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        /* Scan Form */
+        .scan-form {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            box-shadow: var(--glow-red);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-red);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 1rem;
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: var(--glow-red);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-red);
+        }
+
+        .warning-text {
+            color: var(--warning);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-scan {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary-red), #cc0028);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 0, 51, 0.3);
+        }
+
+        .btn-scan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 51, 0.5);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: var(--darker-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-red), #ff6b6b);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.8);
+        }
+
+        .scan-status {
+            text-align: center;
+            color: var(--primary-red);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Terminal Logs */
+        .terminal {
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border-left: 2px solid transparent;
+            padding-left: 0.8rem;
+        }
+
+        .log-info { color: #00aaff; border-left-color: #00aaff; }
+        .log-success { color: var(--success); border-left-color: var(--success); }
+        .log-warning { color: var(--warning); border-left-color: var(--warning); }
+        .log-error { color: var(--danger); border-left-color: var(--danger); }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .critical { color: var(--danger); }
+        .high { color: #ff6600; }
+        .medium { color: var(--warning); }
+        .low { color: #ffcc00; }
+        .secure { color: var(--success); }
+
+        .vulnerabilities-list {
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .vuln-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .vuln-item:last-child {
+            border-bottom: none;
+        }
+
+        .vuln-item:hover {
+            background: var(--darker-bg);
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .vuln-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .severity-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .severity-critical {
+            background: rgba(255, 0, 51, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .severity-high {
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid #ff6600;
+            color: #ff6600;
+        }
+
+        .severity-medium {
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .severity-low {
+            background: rgba(255, 204, 0, 0.2);
+            border: 1px solid #ffcc00;
+            color: #ffcc00;
+        }
+
+        .vuln-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .vuln-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: var(--darker-bg);
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--primary-red);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .btn-export {
+            padding: 0.8rem 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-red);
+            border-radius: 5px;
+            color: var(--primary-red);
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-export:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vuln-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-red);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cc0028;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg"></canvas>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">CRIMSONEYE</div>
+            <nav>
+                <div class="nav-item active" data-section="scan">
+                    <span class="nav-icon">🔍</span>
+                    <span>Scanner</span>
+                </div>
+                <div class="nav-item" data-section="results">
+                    <span class="nav-icon">📊</span>
+                    <span>Results</span>
+                </div>
+                <div class="nav-item" data-section="about">
+                    <span class="nav-icon">ℹ️</span>
+                    <span>About</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Vulnerability Scanner</h1>
+                <div class="status-badge">System Online</div>
+            </div>
+
+            <!-- Scan Section -->
+            <section id="scan-section">
+                <div class="scan-form">
+                    <form id="scan-form">
+                        <div class="form-group">
+                            <label for="target-url">Target URL</label>
+                            <input type="text" id="target-url" placeholder="https://example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scan-mode">Scan Mode</label>
+                            <select id="scan-mode">
+                                <option value="passive">Passive Scan (Safe)</option>
+                                <option value="active">Active Scan (Requires Permission)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="permission-check" required>
+                                <label for="permission-check" style="margin: 0; text-transform: none;">
+                                    I confirm I own this domain or have explicit permission to test it
+                                </label>
+                            </div>
+                            <div class="warning-text">
+                                ⚠️ Unauthorized scanning is illegal. Only scan systems you own or have written permission to test.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-scan" id="btn-start-scan">
+                            Initialize Scan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="progress-section" id="progress-section">
+                    <div class="scan-status" id="scan-status">Initializing scanner...</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar">0%</div>
+                    </div>
+                    <div class="terminal" id="terminal"></div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="font-family: 'Orbitron', monospace; color: var(--primary-red);">Scan Results</h2>
+                    <button class="btn-export" id="btn-export">Export Report</button>
+                </div>
+
+                <div class="stats-grid" id="stats-grid"></div>
+                <div class="vulnerabilities-list" id="vulnerabilities-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Matrix Background Animation
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+        const charArray = chars.split('');
+        const columns = canvas.width / 20;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#ff0033';
+            ctx.font = '15px Share Tech Mono';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const char = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(char, i * 20, drops[i] * 20);
+                
+                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const section = item.getAttribute('data-section');
+                if (section === 'scan') {
+                    document.getElementById('scan-section').style.display = 'block';
+                    document.getElementById('results-section').classList.remove('active');
+                } else if (section === 'results') {
+                    document.getElementById('scan-section').style.display = 'none';
+                    document.getElementById('results-section').classList.add('active');
+                } else if (section === 'about') {
+                    alert('CrimsonEye Vulnerability Scanner v1.0\n\nA professional web security scanning platform for authorized penetration testing.\n\n⚠️ Educational Use Only\nOnly scan systems you own or have explicit permission to test.');
+                }
+            });
+        });
+
+        // Scan Simulation
+        const scanForm = document.getElementById('scan-form');
+        const progressSection = document.getElementById('progress-section');
+        const terminal = document.getElementById('terminal');
+        const progressBar = document.getElementById('progress-bar');
+        const scanStatus = document.getElementById('scan-status');
+        const btnStartScan = document.getElementById('btn-start-scan');
+
+        let scanResults = null;
+
+        scanForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const targetUrl = document.getElementById('target-url').value;
+            const scanMode = document.getElementById('scan-mode').value;
+            const permissionCheck = document.getElementById('permission-check').checked;
+
+            if (!permissionCheck) {
+                addLog('error', 'Permission checkbox must be checked');
+                return;
+            }
+
+            btnStartScan.disabled = true;
+            progressSection.classList.add('active');
+            terminal.innerHTML = '';
+            
+            addLog('info', `Initializing ${scanMode} scan for ${targetUrl}`);
+            addLog('info', 'Loading scanner modules...');
+            
+            await simulateScan(targetUrl, scanMode);
+        });
+
+        function addLog(type, message) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function simulateScan(url, mode) {
+    try {
+        const scanResponse = await fetch('http://localhost:8000/scan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                target_url: url,
+                scan_mode: mode,
+                permission_confirmed: true
+            })
+        });
+
+        const scanData = await scanResponse.json();
+        const scanId = scanData.scan_id;
+
+        const statusInterval = setInterval(async () => {
+            const statusResponse = await fetch(
+                `http://localhost:8000/scan/status/${scanId}`
+            );
+
+            const status = await statusResponse.json();
+
+            progressBar.style.width = `${status.progress}%`;
+            progressBar.textContent = `${status.progress}%`;
+            scanStatus.textContent = status.current_step;
+            addLog('info', status.current_step);
+
+            if (status.status === 'completed') {
+                clearInterval(statusInterval);
+
+                const resultsResponse = await fetch(
+                    `http://localhost:8000/scan/results/${scanId}`
+                );
+
+                const results = await resultsResponse.json();
+
+                scanResults = results;
+                displayResults();
+            }
+        }, 1000);
+
+    } catch (error) {
+        addLog('error', `Scan failed: ${error.message}`);
+        btnStartScan.disabled = false;
+    }
+}
+
+
+        function generateResults(url, mode) {
+            const criticalCount = mode === 'active' ? 2 : 0;
+            const highCount = 3;
+            const mediumCount = 5;
+            const lowCount = 2;
+
+            scanResults = {
+                url: url,
+                scanMode: mode,
+                timestamp: new Date().toISOString(),
+                summary: {
+                    critical: criticalCount,
+                    high: highCount,
+                    medium: mediumCount,
+                    low: lowCount,
+                    total: criticalCount + highCount + mediumCount + lowCount
+                },
+                vulnerabilities: []
+            };
+
+            if (mode === 'active') {
+                scanResults.vulnerabilities.push(
+                    {
+                        title: 'SQL Injection in Login Form',
+                        severity: 'critical',
+                        description: 'The login form is vulnerable to SQL injection attacks via the username parameter.',
+                        owasp: 'A03:2021 – Injection',
+                        cvss: '9.8',
+                        affected: '/login.php?user=',
+                        mitigation: 'Use parameterized queries or prepared statements. Never concatenate user input directly into SQL queries.'
+                    },
+                    {
+                        title: 'Reflected XSS in Search Parameter',
+                        severity: 'critical',
+                        description: 'User input is reflected in the page without proper sanitization, allowing XSS attacks.',
+                        owasp: 'A03:2021 – Injection',
+                        cvss: '7.1',
+                        affected: '/search?q=<script>',
+                        mitigation: 'Encode all user-supplied data before rendering. Implement Content Security Policy (CSP) headers.'
+                    }
+                );
+            }
+
+            scanResults.vulnerabilities.push(
+                {
+                    title: 'Missing X-Frame-Options Header',
+                    severity: 'high',
+                    description: 'The X-Frame-Options header is not set, allowing clickjacking attacks.',
+                    owasp: 'A05:2021 – Security Misconfiguration',
+                    cvss: '6.5',
+                    affected: 'All pages',
+                    mitigation: 'Add "X-Frame-Options: SAMEORIGIN" or "X-Frame-Options: DENY" header.'
+                },
+                {
+                    title: 'Insecure Cookie Configuration',
+                    severity: 'high',
+                    description: 'Session cookies lack Secure and HttpOnly flags, exposing them to interception.',
+                    owasp: 'A05:2021 – Security Misconfiguration',
+                    cvss: '6.1',
+                    affected: 'sessionid cookie',
+                    mitigation: 'Set Secure, HttpOnly, and SameSite=Strict flags on all authentication cookies.'
+                },
+                {
+                    title: 'Missing Content Security Policy',
+                    severity: 'high',
+                    description: 'No CSP header detected, increasing risk of XSS exploitation.',
+                    owasp: 'A05:2021 – Security Misconfiguration',
+                    cvss: '5.9',
+                    affected: 'All pages',
+                    mitigation: "Implement CSP header: \"Content-Security-Policy: default-src 'self'\""
+                },
+                {
+                    title: 'Weak TLS Configuration',
+                    severity: 'medium',
+                    description: 'Server supports TLS 1.0 and TLS 1.1, which are deprecated and insecure.',
+                    owasp: 'A02:2021 – Cryptographic Failures',
+                    cvss: '5.3',
+                    affected: 'HTTPS endpoint',
+                    mitigation: 'Disable TLS 1.0 and 1.1. Only support TLS 1.2 and TLS 1.3.'
+                },
+                {
+                    title: 'CORS Misconfiguration',
+                    severity: 'medium',
+                    description: 'Access-Control-Allow-Origin set to wildcard (*), allowing any domain to make requests.',
+                    owasp: 'A05:2021 – Security Misconfiguration',
+                    cvss: '4.3',
+                    affected: '/api/*',
+                    mitigation: 'Set specific allowed origins. Never use wildcard for authenticated APIs.'
+                },
+                {
+                    title: 'Server Version Disclosure',
+                    severity: 'low',
+                    description: 'Server header reveals version information (Nginx/1.18.0).',
+                    owasp: 'A05:2021 – Security Misconfiguration',
+                    cvss: '3.1',
+                    affected: 'HTTP response headers',
+                    mitigation: 'Disable server version disclosure in web server configuration.'
+                }
+            );
+
+            displayResults();
+        }
+
+        function displayResults() {
+            btnStartScan.disabled = false;
+            
+            const statsGrid = document.getElementById('stats-grid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value critical">${scanResults.summary.critical}</div>
+                    <div class="stat-label">Critical</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value high">${scanResults.summary.high}</div>
+                    <div class="stat-label">High</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value medium">${scanResults.summary.medium}</div>
+                    <div class="stat-label">Medium</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value low">${scanResults.summary.low}</div>
+                    <div class="stat-label">Low</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value secure">${scanResults.summary.total}</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+            `;
+
+            const vulnList = document.getElementById('vulnerabilities-list');
+            vulnList.innerHTML = scanResults.vulnerabilities.map(vuln => `
+                <div class="vuln-item">
+                    <div class="vuln-header">
+                        <div class="vuln-title">${vuln.title}</div>
+                        <span class="severity-badge severity-${vuln.severity}">${vuln.severity}</span>
+                    </div>
+                    <div class="vuln-description">${vuln.description}</div>
+                    <div class="vuln-details">
+                        <div class="detail-item">
+                            <div class="detail-label">OWASP Category</div>
+                            <div class="detail-value">${vuln.owasp}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">CVSS Score</div>
+                            <div class="detail-value">${vuln.cvss}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Affected</div>
+                            <div class="detail-value">${vuln.affected}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Mitigation</div>
+                            <div class="detail-value">${vuln.mitigation}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            addLog('success', `Found ${scanResults.summary.total} total vulnerabilities`);
+            addLog('info', 'Navigate to Results tab to view detailed report');
+        }
+
+        // Export functionality
+        document.getElementById('btn-export').addEventListener('click', () => {
+            if (!scanResults) {
+                alert('No scan results available to export');
+                return;
+            }
+
+            const reportText = `
+CRIMSONEYE VULNERABILITY SCAN REPORT
+=====================================
+Target: ${scanResults.url}
+Scan Mode: ${scanResults.scanMode}
+Timestamp: ${new Date(scanResults.timestamp).toLocaleString()}
+
+SUMMARY
+-------
+Critical: ${scanResults.summary.critical}
+High: ${scanResults.summary.high}
+Medium: ${scanResults.summary.medium}
+Low: ${scanResults.summary.low}
+Total: ${scanResults.summary.total}
+
+VULNERABILITIES
+---------------
+${scanResults.vulnerabilities.map((v, i) => `
+${i + 1}. ${v.title} [${v.severity.toUpperCase()}]
+   OWASP: ${v.owasp}
+   CVSS: ${v.cvss}
+   Description: ${v.description}
+   Affected: ${v.affected}
+   Mitigation: ${v.mitigation}
+`).join('\n')}
+
+---
+Generated by CrimsonEye Scanner v1.0
+`;
+
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crimsoneye-scan-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
